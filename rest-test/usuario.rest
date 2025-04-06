@@ -1,0 +1,10 @@
+###
+POST http://localhost:3000/api/usuarios/register
+content-type: application/json
+
+{
+    "celular": 3003762773,
+    "nombre": "Nicol Rodriguez",
+    "password": "Nicol123456",
+    "rol": "admin"
+}

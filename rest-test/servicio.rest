@@ -1,0 +1,10 @@
+###
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+
+{
+    "categoria":    "Semipermanente",
+    "nombre":   "Pies",
+    "duracion": 60,
+    "precio":   35000
+}

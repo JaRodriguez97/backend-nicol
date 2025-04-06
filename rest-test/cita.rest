@@ -1,0 +1,11 @@
+###
+POST http://localhost:3000/api/citas/
+content-type: application/json
+
+{
+    "celular": 3243973949,
+    "fecha": "04/10/2025",
+    "hora": "09:30 AM",
+    "servicio": ["67eb4c59955505e8ea3f3376","67eb4cd3955505e8ea3f337d"],
+    "estado": "Aprobada"
+}
