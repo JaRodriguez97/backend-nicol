@@ -17,13 +17,8 @@ const limiter = rateLimit({
   max: 100, // límite de 100 peticiones por IP
   message: "Demasiadas solicitudes desde esta IP, por favor intenta más tarde.",
 });
-const corsOptions = {
-  origin: [env.frontend], // tu dominio de frontend en producción
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true, // si usas cookies o tokens en headers
-};
 
-app.use(cors(corsOptions));
+app.use(cors("*"));
 app.use(express.json());
 app.use(limiter);
 app.use(helmet());
