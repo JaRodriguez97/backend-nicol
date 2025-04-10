@@ -7,7 +7,7 @@ import connectDB from "./config/db.js";
 import citaRoutes from "./routes/citaRoutes.js";
 import servicioRoutes from "./routes/servicioRoutes.js";
 import usuarioRoutes from "./routes/usuarioRoutes.js";
-import { env } from "process";
+import morgan from "morgan";
 
 const app = express();
 connectDB();
@@ -18,6 +18,7 @@ const limiter = rateLimit({
   message: "Demasiadas solicitudes desde esta IP, por favor intenta más tarde.",
 });
 /*  */
+
 const corsOptions = {
   origin: "https://nicolrnails.netlify.app",
   credentials: true,
@@ -27,10 +28,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// 🔥 IMPORTANTE: Asegurar respuesta a preflight
-app.options("*", cors(corsOptions));
+app.use(morgan("dev"));
 
-// app.use(cors("*"));
 app.use(express.json());
 app.use(limiter);
 app.use(helmet());
