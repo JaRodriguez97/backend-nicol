@@ -12,7 +12,9 @@ export const crearCita = async (req, res) => {
       duracion,
       estado = "Pendiente",
     } = req.body;
+    console.log("🚀 ~ crearCita ~ req.body:", req.body);
     // const usuarioId = req.usuario.id;
+    return res.status(201).json({ mensaje: "Cita creada con éxito" });
     const citaExistente = await Cita.findOne({ fecha, hora });
 
     if (citaExistente)
@@ -49,6 +51,28 @@ export const obtenerTodasLasCitas = async (req, res) => {
     if (req.usuario.rol !== "admin")
       return res.status(403).json({ mensaje: "Acceso denegado" });
 
+    let $project = {
+      _id: 1,
+      celular: 1,
+      estado: 1,
+      fecha: 1,
+      historial: 1,
+      hora: 1,
+      servicio: {
+        $map: {
+          input: "$servicio",
+          as: "s",
+          in: {
+            categoria: "$$s.categoria",
+            duracion: "$$s.duracion",
+            nombre: "$$s.nombre",
+            precio: "$$s.precio",
+            _id: "$$s._id",
+          },
+        },
+      },
+    };
+
     const citas = await Cita.aggregate([
       { $match: { estado: { $ne: "Pendiente" } } },
       {
@@ -59,29 +83,7 @@ export const obtenerTodasLasCitas = async (req, res) => {
           as: "servicio", // Nombre del campo resultante
         },
       },
-      {
-        $project: {
-          _id: 1,
-          celular: 1,
-          estado: 1,
-          fecha: 1,
-          historial: 1,
-          hora: 1,
-          servicio: {
-            $map: {
-              input: "$servicio",
-              as: "s",
-              in: {
-                categoria: "$$s.categoria",
-                duracion: "$$s.duracion",
-                nombre: "$$s.nombre",
-                precio: "$$s.precio",
-                _id: "$$s._id",
-              },
-            },
-          },
-        },
-      },
+      { $project },
     ]);
 
     res.json(citas);

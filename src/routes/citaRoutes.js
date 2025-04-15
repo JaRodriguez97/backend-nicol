@@ -11,7 +11,7 @@ import authMiddleware from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 router.post("/", crearCita);
-router.get("/mis-citas", authMiddleware, obtenerMisCitas);
+router.get("/mis-citas", obtenerMisCitas);
 router.get("/", authMiddleware, obtenerTodasLasCitas);
 router.put("/:id", authMiddleware, actualizarCita);
 router.delete("/:id", authMiddleware, eliminarCita);

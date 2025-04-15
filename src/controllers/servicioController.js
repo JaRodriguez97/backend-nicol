@@ -2,8 +2,40 @@ import Servicio from "../models/Servicio.js";
 
 export const obtenerServicios = async (req, res) => {
   try {
-    const servicios = await Servicio.find();
-    res.status(200).json(servicios);
+    const servicios = await Servicio.aggregate([
+      {
+        $group: {
+          _id: "$categoria",
+          servicios: {
+            $push: {
+              nombre: "$nombre",
+              precio: "$precio",
+              duracion: "$duracion",
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          k: "$_id",
+          v: "$servicios",
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          root: { $push: { k: "$k", v: "$v" } },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: { $arrayToObject: "$root" },
+        },
+      },
+    ]);
+
+    res.status(200).json(servicios[0]);
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });
   }
