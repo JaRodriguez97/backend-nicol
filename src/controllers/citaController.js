@@ -10,6 +10,7 @@ export const crearCita = async (req, res) => {
       hora,
       servicio,
       duracion,
+      precio,
       estado = "Pendiente",
     } = req.body;
     console.log("🚀 ~ crearCita ~ req.body:", req.body);
@@ -26,7 +27,15 @@ export const crearCita = async (req, res) => {
             : "Alguien mas ya tiene una cita en esa hora y fecha",
       });
 
-    const cita = new Cita({ celular, fecha, hora, servicio, duracion, estado });
+    const cita = new Cita({
+      celular,
+      fecha,
+      hora,
+      servicio,
+      duracion,
+      precio,
+      estado,
+    });
     await cita.save();
 
     res.status(201).json({ mensaje: "Cita creada con éxito", cita });
