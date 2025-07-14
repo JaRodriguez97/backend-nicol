@@ -11,7 +11,8 @@ const connectDB = async () => {
     } catch (error) {
       console.error(
         `❌ Error conectando a MongoDB (reintentos restantes: ${retries - 1}):`,
-        error
+        error,
+        process.env.MONGO_URI
       );
       retries -= 1;
       if (!retries) process.exit(1);

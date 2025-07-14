@@ -14,8 +14,6 @@ export const crearCita = async (req, res) => {
       estado = "Pendiente",
     } = req.body;
     console.log("🚀 ~ crearCita ~ req.body:", req.body);
-    // const usuarioId = req.usuario.id;
-    return res.status(201).json({ mensaje: "Cita creada con éxito" });
     const citaExistente = await Cita.findOne({ fecha, hora });
 
     if (citaExistente)
@@ -35,6 +33,7 @@ export const crearCita = async (req, res) => {
       duracion,
       precio,
       estado,
+      historial: [{ estado }],
     });
     await cita.save();
 
@@ -93,6 +92,58 @@ export const obtenerTodasLasCitas = async (req, res) => {
         },
       },
       { $project },
+      { $sort: { fecha: 1, hora: 1 } }, // Ordenar por fecha y hora
+    ]);
+
+    console.log("🚀 ~ obtenerTodasLasCitas ~ citas:", citas.length);
+    res.json(citas);
+  } catch (error) {
+    res.status(500).json({ mensaje: "Error en el servidor", error });
+  }
+};
+
+// Obtener citas por número de celular (pública)
+export const obtenerCitasPorCelular = async (req, res) => {
+  try {
+    const { celular } = req.params;
+
+    if (!celular || !/^[3]{1}[0-9]{9}$/.test(celular)) {
+      return res.status(400).json({ mensaje: "Número de celular inválido" });
+    }
+
+    let $project = {
+      _id: 1,
+      celular: 1,
+      estado: 1,
+      fecha: 1,
+      hora: 1,
+      servicio: {
+        $map: {
+          input: "$servicio",
+          as: "s",
+          in: {
+            categoria: "$$s.categoria",
+            duracion: "$$s.duracion",
+            nombre: "$$s.nombre",
+            precio: "$$s.precio",
+            _id: "$$s._id",
+          },
+        },
+      },
+    };
+
+    const citas = await Cita.aggregate([
+      { $match: { celular: Number(celular) } },
+      {
+        $lookup: {
+          from: "servicios",
+          localField: "servicio",
+          foreignField: "_id",
+          as: "servicio",
+        },
+      },
+      { $project },
+      { $sort: { fecha: 1, hora: 1 } }, // Ordenar por fecha y hora
     ]);
 
     res.json(citas);
@@ -107,12 +158,30 @@ export const actualizarCita = async (req, res) => {
     if (req.usuario.rol !== "admin")
       return res.status(403).json({ mensaje: "Acceso denegado" });
     const { estado } = req.body;
+
+    // First, find the appointment to check if it exists and avoid duplicate state
+    const citaExistente = await Cita.findById(req.params.id);
+    if (!citaExistente)
+      return res.status(404).json({ mensaje: "Cita no encontrada" });
+
+    // Only update if the state is different from the current one
+    if (citaExistente.estado === estado) {
+      return res.json({
+        mensaje: "La cita ya tiene ese estado",
+        cita: citaExistente,
+      });
+    }
+
+    // Add the new state to history and update the appointment
     const cita = await Cita.findByIdAndUpdate(
       req.params.id,
-      { estado },
+      {
+        estado,
+        $push: { historial: { estado, fecha: new Date() } },
+      },
       { new: true }
     );
-    if (!cita) return res.status(404).json({ mensaje: "Cita no encontrada" });
+
     res.json({ mensaje: "Cita actualizada", cita });
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });
