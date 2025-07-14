@@ -1,5 +1,14 @@
-import Cita from "../models/Cita.js";
-import Usuario from "../models/Usuario.js";
+import {
+  verificarCitaExistente,
+  obtenerCitaPorId,
+  crearNuevaCita,
+  obtenerCitasUsuario,
+  obtenerTodasCitas,
+  obtenerCitasPorCelularService,
+  actualizarEstadoCita,
+  eliminarCitaService,
+  verificarPermisosCita
+} from "../services/citaService.js";
 
 // Crear una nueva cita
 export const crearCita = async (req, res) => {
@@ -14,7 +23,7 @@ export const crearCita = async (req, res) => {
       estado = "Pendiente",
     } = req.body;
     console.log("🚀 ~ crearCita ~ req.body:", req.body);
-    const citaExistente = await Cita.findOne({ fecha, hora });
+    const citaExistente = await verificarCitaExistente(fecha, hora);
 
     if (citaExistente)
       return res.status(400).json({
@@ -22,10 +31,10 @@ export const crearCita = async (req, res) => {
           citaExistente.celular == celular
             ? "Usted ya tiene una cita en esa hora y fecha, se encuentra en estado: " +
               citaExistente.estado
-            : "Alguien mas ya tiene una cita en esa hora y fecha",
+            : "Alguien más ya tiene una cita en esa hora y fecha",
       });
 
-    const cita = new Cita({
+    const cita = await crearNuevaCita({
       celular,
       fecha,
       hora,
@@ -35,7 +44,6 @@ export const crearCita = async (req, res) => {
       estado,
       historial: [{ estado }],
     });
-    await cita.save();
 
     res.status(201).json({ mensaje: "Cita creada con éxito", cita });
   } catch (error) {
@@ -46,7 +54,7 @@ export const crearCita = async (req, res) => {
 // Obtener citas del usuario autenticado
 export const obtenerMisCitas = async (req, res) => {
   try {
-    const citas = await Cita.find({ usuario: req.usuario.id });
+    const citas = await obtenerCitasUsuario(req.usuario.id);
     res.json(citas);
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });
@@ -59,41 +67,7 @@ export const obtenerTodasLasCitas = async (req, res) => {
     if (req.usuario.rol !== "admin")
       return res.status(403).json({ mensaje: "Acceso denegado" });
 
-    let $project = {
-      _id: 1,
-      celular: 1,
-      estado: 1,
-      fecha: 1,
-      historial: 1,
-      hora: 1,
-      servicio: {
-        $map: {
-          input: "$servicio",
-          as: "s",
-          in: {
-            categoria: "$$s.categoria",
-            duracion: "$$s.duracion",
-            nombre: "$$s.nombre",
-            precio: "$$s.precio",
-            _id: "$$s._id",
-          },
-        },
-      },
-    };
-
-    const citas = await Cita.aggregate([
-      { $match: { estado: { $ne: "Pendiente" } } },
-      {
-        $lookup: {
-          from: "servicios", // Nombre de la colección en MongoDB
-          localField: "servicio", // Campo en "Cita" que referencia a "Servicio"
-          foreignField: "_id", // Campo _id en "Servicio"
-          as: "servicio", // Nombre del campo resultante
-        },
-      },
-      { $project },
-      { $sort: { fecha: 1, hora: 1 } }, // Ordenar por fecha y hora
-    ]);
+    const citas = await obtenerTodasCitas();
 
     console.log("🚀 ~ obtenerTodasLasCitas ~ citas:", citas.length);
     res.json(citas);
@@ -111,60 +85,34 @@ export const obtenerCitasPorCelular = async (req, res) => {
       return res.status(400).json({ mensaje: "Número de celular inválido" });
     }
 
-    let $project = {
-      _id: 1,
-      celular: 1,
-      estado: 1,
-      fecha: 1,
-      hora: 1,
-      servicio: {
-        $map: {
-          input: "$servicio",
-          as: "s",
-          in: {
-            categoria: "$$s.categoria",
-            duracion: "$$s.duracion",
-            nombre: "$$s.nombre",
-            precio: "$$s.precio",
-            _id: "$$s._id",
-          },
-        },
-      },
-    };
-
-    const citas = await Cita.aggregate([
-      { $match: { celular: Number(celular) } },
-      {
-        $lookup: {
-          from: "servicios",
-          localField: "servicio",
-          foreignField: "_id",
-          as: "servicio",
-        },
-      },
-      { $project },
-      { $sort: { fecha: 1, hora: 1 } }, // Ordenar por fecha y hora
-    ]);
-
+    const citas = await obtenerCitasPorCelularService(celular);
     res.json(citas);
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });
   }
 };
 
-// Actualizar estado de una cita (solo admin)
+// Actualizar estado de una cita (cualquier usuario puede actualizar sus propias citas, admin puede actualizar todas)
 export const actualizarCita = async (req, res) => {
   try {
-    if (req.usuario.rol !== "admin")
-      return res.status(403).json({ mensaje: "Acceso denegado" });
     const { estado } = req.body;
+    const citaId = req.params.id;
+    const usuarioCelular = req.body.celular; // Para verificar si la cita pertenece al usuario por su número celular
 
-    // First, find the appointment to check if it exists and avoid duplicate state
-    const citaExistente = await Cita.findById(req.params.id);
+    // Verificar que la cita existe
+    const citaExistente = await obtenerCitaPorId(citaId);
     if (!citaExistente)
       return res.status(404).json({ mensaje: "Cita no encontrada" });
 
-    // Only update if the state is different from the current one
+    // Verificar permisos: admin puede editar cualquier cita, usuario normal solo las suyas por número de celular
+    const esAdmin = req.usuario?.rol === "admin";
+    const esCitaDelUsuario = usuarioCelular && citaExistente.celular.toString() === usuarioCelular.toString();
+    
+    if (!esAdmin && !esCitaDelUsuario) {
+      return res.status(403).json({ mensaje: "No tienes permiso para actualizar esta cita" });
+    }
+
+    // Verificar que el estado es diferente al actual
     if (citaExistente.estado === estado) {
       return res.json({
         mensaje: "La cita ya tiene ese estado",
@@ -172,37 +120,53 @@ export const actualizarCita = async (req, res) => {
       });
     }
 
-    // Add the new state to history and update the appointment
-    const cita = await Cita.findByIdAndUpdate(
-      req.params.id,
-      {
-        estado,
-        $push: { historial: { estado, fecha: new Date() } },
-      },
-      { new: true }
-    );
+    // Actualizar estado de la cita
+    const cita = await actualizarEstadoCita(citaId, estado);
 
-    res.json({ mensaje: "Cita actualizada", cita });
+    res.json({ mensaje: "Cita actualizada con éxito", cita });
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });
   }
 };
 
-// Eliminar una cita
+// Eliminar una cita (solo admin) o cancelarla (cualquier usuario con su celular)
 export const eliminarCita = async (req, res) => {
   try {
-    const cita = await Cita.findById(req.params.id);
-    if (!cita) return res.status(404).json({ mensaje: "Cita no encontrada" });
-
-    if (
-      req.usuario.rol !== "admin" &&
-      cita.usuario.toString() !== req.usuario.id
-    ) {
-      return res.status(403).json({ mensaje: "Acceso denegado" });
+    const citaId = req.params.id;
+    const usuarioCelular = req.body.celular;
+    const esAdmin = req.usuario?.rol === "admin";
+    
+    // Verificar que la cita existe
+    const citaExistente = await obtenerCitaPorId(citaId);
+    if (!citaExistente) {
+      return res.status(404).json({ mensaje: "Cita no encontrada" });
     }
-
-    await cita.deleteOne();
-    res.json({ mensaje: "Cita eliminada" });
+    
+    // Verificar si es la cita del usuario que intenta cancelar
+    const esCitaDelUsuario = usuarioCelular && citaExistente.celular.toString() === usuarioCelular.toString();
+    
+    // Si no es admin ni el dueño de la cita, denegar acceso
+    if (!esAdmin && !esCitaDelUsuario) {
+      return res.status(403).json({ mensaje: "No tienes permiso para cancelar esta cita" });
+    }
+    
+    // Lógica según el tipo de usuario
+    if (esAdmin) {
+      // Los admin pueden eliminar físicamente
+      const eliminado = await eliminarCitaService(citaId);
+      if (!eliminado) {
+        return res.status(500).json({ mensaje: "Error al eliminar la cita" });
+      }
+      return res.json({ mensaje: "Cita eliminada permanentemente" });
+    } else {
+      // Las clientas solo pueden cancelar (cambio de estado)
+      const estadoCancelacion = "Cancelada por clienta";
+      const cita = await actualizarEstadoCita(citaId, estadoCancelacion);
+      return res.json({ 
+        mensaje: "Cita cancelada correctamente", 
+        cita
+      });
+    }
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });
   }

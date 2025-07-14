@@ -1,17 +1,23 @@
 import express from "express";
 import {
-  // registrarUsuario,
   loginUsuario,
   obtenerPerfil,
   listarUsuarios,
 } from "../controllers/usuarioController.js";
 import authMiddleware from "../middlewares/authMiddleware.js";
+import adminMiddleware from "../middlewares/adminMiddleware.js";
+import { validarLogin } from "../middlewares/usuarioValidation.js";
+import { loginLimiter } from "../middlewares/rateLimitMiddleware.js";
 
 const router = express.Router();
 
-// router.post("/register", registrarUsuario);
-router.post("/login", loginUsuario);
+// Rutas públicas
+router.post("/login", loginLimiter, validarLogin, loginUsuario);
+
+// Rutas protegidas para usuarios autenticados
 router.get("/me", authMiddleware, obtenerPerfil);
-router.get("/", authMiddleware, listarUsuarios);
+
+// Rutas solo para administradores
+router.get("/", authMiddleware, adminMiddleware, listarUsuarios);
 
 export default router;
