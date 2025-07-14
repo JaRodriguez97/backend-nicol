@@ -39,7 +39,7 @@
 
 ```bash
 # Clonar el repositorio
-git clone <tu-repositorio>
+git clone https://github.com/JaRodriguez97/backend-nicol.git
 cd backend-nicol
 
 # Instalar dependencias
