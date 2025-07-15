@@ -356,9 +356,41 @@ frontend=https://tu-frontend.com
 
 ## 🧪 Testing
 
+### 🛡️ Arquitectura de Testing Segura
+
+**Testing profesional con base de datos en memoria:**
+
+- 🗄️ **MongoDB en memoria** - Tests completamente aislados
+- 🔒 **Validaciones de seguridad** - Prevención de conexiones accidentales
+- 🧹 **Limpieza automática** - Cada test inicia con datos frescos
+- ⚡ **Rendimiento optimizado** - No requiere BD externa
+
+### Configuración de Testing
+
+**Archivo `.env.test`:**
+```env
+# Configuración específica para testing
+NODE_ENV=test
+PORT=5001
+JWT_SECRET=test_secret_key
+
+# Base de datos en memoria (recomendado)
+MONGO_URI_TEST=mongodb://localhost:27017/nicol_nails_test
+
+CORS_ORIGIN=http://localhost:4200
+TEST_TIMEOUT=30000
+TEST_MAX_WORKERS=1
+```
+
+**Características de seguridad:**
+- ✅ Verificación automática de `NODE_ENV=test`
+- ✅ Validación de URIs de testing
+- ✅ MongoDB Memory Server integrado
+- ✅ Cleanup automático después de cada test
+
 ### Ejecutar Tests
 ```bash
-# Todos los tests
+# Todos los tests (con BD en memoria)
 npm test
 
 # Tests en modo watch
@@ -371,13 +403,20 @@ npm run test:coverage
 npm run test:verbose
 ```
 
-### Cobertura de Tests
-- ✅ **95 tests pasando**
+### 📊 Cobertura de Tests
+- ✅ **95 tests pasando** (20.5s)
 - ✅ **Citas API** - 12/12 tests
 - ✅ **Servicios API** - 7/7 tests
 - ✅ **Autenticación** - 8/8 tests
 - ✅ **Middlewares** - 16/16 tests
 - ✅ **Integración** - 8/8 tests
+- ✅ **Validaciones** - 44/44 tests
+
+### 🔧 Tecnologías de Testing
+- **Jest** - Framework de testing
+- **Supertest** - Testing de APIs HTTP
+- **MongoDB Memory Server** - Base de datos en memoria
+- **Cross-env** - Variables de entorno multiplataforma
 
 ---
 

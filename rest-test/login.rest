@@ -1,0 +1,8 @@
+### Login para obtener token
+POST http://localhost:3000/api/usuarios/login
+content-type: application/json
+
+{
+    "celular": 3003762773,
+    "password": "Nicol123456"
+}

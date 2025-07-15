@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  // registrarUsuario,
   loginUsuario,
   obtenerPerfil,
   listarUsuarios,
@@ -13,6 +14,8 @@ const router = express.Router();
 
 // Rutas públicas
 router.post("/login", loginLimiter, validarLogin, loginUsuario);
+
+// router.post("/register", registrarUsuario);
 
 // Rutas protegidas para usuarios autenticados
 router.get("/me", authMiddleware, obtenerPerfil);

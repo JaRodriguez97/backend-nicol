@@ -1,0 +1,147 @@
+### PRIMERO: Ejecuta login.rest para obtener el token, luego reemplaza "TU_TOKEN_AQUI" con el token obtenido
+
+### ✨ SEMIPERMANENTE
+
+### Manos sencillo un solo tono o francés
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Semipermanente",
+    "nombre": "Manos sencillo un solo tono o francés",
+    "duracion": 60,
+    "precio": 35000
+}
+
+###
+
+### Manos con decoración
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Semipermanente",
+    "nombre": "Manos con decoración",
+    "duracion": 75,
+    "precio": 40000
+}
+
+###
+
+### Pies Semipermanente
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Semipermanente",
+    "nombre": "Pies",
+    "duracion": 60,
+    "precio": 35000
+}
+
+###
+
+### ✨ ACRÍLICO
+
+### Esculpidas largo #1 y #2
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Acrilico",
+    "nombre": "Esculpidas largo #1 y #2",
+    "duracion": 120,
+    "precio": 95000
+}
+
+###
+
+### Esculpidas largo #3 y #4
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Acrilico",
+    "nombre": "Esculpidas largo #3 y #4",
+    "duracion": 150,
+    "precio": 105000
+}
+
+###
+
+### Recubrimiento sobre uña natural
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Acrilico",
+    "nombre": "Recubrimiento sobre uña natural",
+    "duracion": 90,
+    "precio": 85000
+}
+
+###
+
+### Retoque de acrílico
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Acrilico",
+    "nombre": "Retoque de acrílico",
+    "duracion": 75,
+    "precio": 75000
+}
+
+###
+
+### Retiro de acrílico
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Acrilico",
+    "nombre": "Retiro de acrílico",
+    "duracion": 30,
+    "precio": 15000
+}
+
+###
+
+### ✨ TRADICIONAL
+
+### Manos Tradicional
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Tradicional",
+    "nombre": "Manos",
+    "duracion": 45,
+    "precio": 15000
+}
+
+###
+
+### Pies Tradicional
+POST http://localhost:3000/api/servicios/
+content-type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4NzVkMGEzMmM3ZDM0M2M1YjM4MTllMyIsInJvbCI6ImFkbWluIiwiaWF0IjoxNzUyNTUxNjI3LCJleHAiOjE3NTMxNTY0Mjd9.BxY1DmSTfSSC7wZ7-ynoZkNC3B87D3xA1SEMDwPfj2o
+
+{
+    "categoria": "Tradicional",
+    "nombre": "Pies",
+    "duracion": 45,
+    "precio": 15000
+}
+
+###
