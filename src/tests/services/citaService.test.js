@@ -20,14 +20,58 @@ describe('Servicio de Citas', () => {
   });
 
   describe('verificarCitaExistente', () => {
-    it('debe verificar si existe una cita en la fecha y hora dada', async () => {
-      const mockCita = { _id: '123', fecha: '05/01/2025', hora: '10:00 AM' };
-      Cita.findOne.mockResolvedValue(mockCita);
-
-      const result = await citaService.verificarCitaExistente('05/01/2025', '10:00 AM');
+    it('debe verificar si existe una cita que se superpone considerando duración', async () => {
+      const citasDelDia = [
+        { _id: '123', fecha: '2025-01-05', hora: '10:00 AM', duracionTotal: 120 }, // 10:00 AM - 12:00 PM
+        { _id: '456', fecha: '2025-01-05', hora: '2:00 PM', duracionTotal: 60 }   // 2:00 PM - 3:00 PM
+      ];
       
-      expect(Cita.findOne).toHaveBeenCalledWith({ fecha: '05/01/2025', hora: '10:00 AM' });
-      expect(result).toEqual(mockCita);
+      Cita.find.mockResolvedValue(citasDelDia);
+
+      // Test: Nueva cita que se superpone (11:00 AM - 1:00 PM)
+      const result = await citaService.verificarCitaExistente('2025-01-05', '11:00 AM', 120);
+      
+      expect(Cita.find).toHaveBeenCalledWith({ fecha: '2025-01-05' });
+      expect(result).toEqual(citasDelDia[0]); // Debe retornar la cita que causa conflicto
+    });
+
+    it('debe retornar null si no hay conflictos de horario', async () => {
+      const citasDelDia = [
+        { _id: '123', fecha: '2025-01-05', hora: '10:00 AM', duracionTotal: 60 }, // 10:00 AM - 11:00 AM
+        { _id: '456', fecha: '2025-01-05', hora: '2:00 PM', duracionTotal: 60 }   // 2:00 PM - 3:00 PM
+      ];
+      
+      Cita.find.mockResolvedValue(citasDelDia);
+
+      // Test: Nueva cita que NO se superpone (12:00 PM - 1:00 PM)
+      const result = await citaService.verificarCitaExistente('2025-01-05', '12:00 PM', 60);
+      
+      expect(Cita.find).toHaveBeenCalledWith({ fecha: '2025-01-05' });
+      expect(result).toBeNull();
+    });
+
+    it('debe permitir citas consecutivas que comienzan exactamente cuando termina otra', async () => {
+      const citasDelDia = [
+        { _id: '123', fecha: '2025-01-05', hora: '11:00 AM', duracionTotal: 30 }, // 11:00 AM - 11:30 AM
+        { _id: '456', fecha: '2025-01-05', hora: '2:00 PM', duracionTotal: 60 }   // 2:00 PM - 3:00 PM
+      ];
+      
+      Cita.find.mockResolvedValue(citasDelDia);
+
+      // Test: Nueva cita que comienza exactamente cuando termina la primera (11:30 AM - 12:00 PM)
+      const result = await citaService.verificarCitaExistente('2025-01-05', '11:30 AM', 30);
+      
+      expect(Cita.find).toHaveBeenCalledWith({ fecha: '2025-01-05' });
+      expect(result).toBeNull(); // No debe haber conflicto
+    });
+
+    it('debe retornar null si no hay citas ese día', async () => {
+      Cita.find.mockResolvedValue([]);
+
+      const result = await citaService.verificarCitaExistente('2025-01-05', '10:00 AM', 60);
+      
+      expect(Cita.find).toHaveBeenCalledWith({ fecha: '2025-01-05' });
+      expect(result).toBeNull();
     });
   });
 

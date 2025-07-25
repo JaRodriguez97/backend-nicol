@@ -5,7 +5,7 @@
  * @param {Function} next - Next middleware function
  */
 export const validarDatosCita = (req, res, next) => {
-  const { celular, fecha, hora, servicio } = req.body;
+  const { celular, fecha, hora, servicio, duracionTotal, precioTotal } = req.body;
   const errores = [];
 
   // Validar celular (debe ser un número de 10 dígitos que comienza por 3)
@@ -43,6 +43,20 @@ export const validarDatosCita = (req, res, next) => {
     errores.push("Debe seleccionar al menos un servicio");
   } else if (!Array.isArray(servicio) && !servicio._id) {
     errores.push("Formato de servicio inválido");
+  }
+
+  // Validar duracionTotal
+  if (!duracionTotal) {
+    errores.push("La duración total es obligatoria");
+  } else if (typeof duracionTotal !== 'number' || duracionTotal <= 0) {
+    errores.push("La duración total debe ser un número positivo");
+  }
+
+  // Validar precioTotal
+  if (!precioTotal) {
+    errores.push("El precio total es obligatorio");
+  } else if (typeof precioTotal !== 'number' || precioTotal <= 0) {
+    errores.push("El precio total debe ser un número positivo");
   }
 
   // Si hay errores, devolver respuesta con errores

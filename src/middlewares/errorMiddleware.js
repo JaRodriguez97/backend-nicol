@@ -18,18 +18,42 @@ export const notFoundHandler = (req, res, next) => {
  * @param {Function} next - Next middleware function
  */
 export const errorHandler = (err, req, res, next) => {
-  // Si el status code sigue siendo 200, cambiarlo a 500
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  
-  res.status(statusCode);
+  console.error('Error middleware triggered:', {
+    message: err.message,
+    status: err.status,
+    stack: err.stack,
+    url: req.originalUrl,
+    method: req.method
+  });
+
+  // Si ya se envió una respuesta, no hacer nada
+  if (res.headersSent) {
+    return next(err);
+  }
+
+  // Determinar el status code apropiado
+  let statusCode = err.status || err.statusCode || 500;
+  if (statusCode === 200) statusCode = 500;
   
   // Determinar mensaje de error y detalles según entorno
   const isDevelopment = process.env.NODE_ENV === 'development';
   
-  // En producción no devolvemos el stack trace
-  res.json({
-    mensaje: err.message,
-    stack: isDevelopment ? err.stack : null,
-    error: true
-  });
+  // Estructura base de respuesta
+  const errorResponse = {
+    mensaje: err.message || 'Error interno del servidor',
+    error: true,
+    esErrorUsuario: err.esErrorUsuario || false
+  };
+
+  // Agregar información adicional si existe
+  if (err.codigo) errorResponse.codigo = err.codigo;
+  if (err.conflicto) errorResponse.conflicto = err.conflicto;
+  if (err.contexto) errorResponse.contexto = err.contexto;
+  
+  // Solo mostrar stack trace en desarrollo
+  if (isDevelopment) {
+    errorResponse.stack = err.stack;
+  }
+  
+  res.status(statusCode).json(errorResponse);
 };

@@ -36,7 +36,6 @@ export const obtenerServicios = async (req, res) => {
       },
     ]);
 
-    console.log("🚀 ~ obtenerServicios ~ servicios[0]:", servicios[0])
     res.status(200).json(servicios[0]);
   } catch (error) {
     res.status(500).json({ mensaje: "Error en el servidor", error });

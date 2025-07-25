@@ -1,7 +1,7 @@
 module.exports = {
   testEnvironment: 'node',
   testMatch: ['**/__tests__/**/*.js', '**/?(*.)+(spec|test).js'],
-  testPathIgnorePatterns: ['/node_modules/', '/src/tests/services/'],
+  testPathIgnorePatterns: ['/node_modules/'],
   verbose: true,
   forceExit: true,
   clearMocks: true,

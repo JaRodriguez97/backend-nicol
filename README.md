@@ -13,12 +13,14 @@
 ## 🚀 Características Principales
 
 - ✅ **Creación de citas sin autenticación** - Las clientas pueden agendar fácilmente
+- 🔄 **Reprogramación de citas** - Cambiar fecha/hora validando disponibilidad
+- 📅 **Validación de solapamiento** - Previene conflictos automáticamente por duración
 - 🔐 **Autenticación JWT** - Acceso seguro para administradores
 - 📱 **Consulta por celular** - Buscar citas usando número de teléfono
 - 🛡️ **Rate limiting** - Protección contra spam y abuso
 - 🔒 **Validación robusta** - Datos siempre consistentes
 - 📊 **Gestión completa** - CRUD para citas, servicios y usuarios
-- 🧪 **95 tests pasando** - Código confiable y bien probado
+- 🧪 **97 tests pasando** - Código confiable y bien probado
 
 ---
 
@@ -71,9 +73,18 @@ Content-Type: application/json
   "fecha": "2025-12-31",
   "hora": "10:00 AM",
   "servicio": ["64f8a8b3c4b5d6e7f8g9h0i1"],
+  "duracionTotal": 120,
+  "precioTotal": 45000,
   "estado": "Pendiente"
 }
 ```
+
+> **⚠️ Validación Automática de Solapamiento**
+> 
+> El sistema previene automáticamente conflictos de horarios considerando la `duracionTotal`:
+> - Si alguien tiene cita de 10:00 AM a 12:00 PM (120 min)
+> - Otra persona NO puede agendar a las 11:00 AM
+> - El sistema mostrará el conflicto y sugerirá otros horarios
 
 **Respuesta exitosa:**
 ```json
@@ -128,7 +139,79 @@ Authorization: Bearer <admin_token>
 
 ---
 
-### ✏️ Actualizar Estado de Cita (Autenticado)
+### 🔄 Reprogramar Cita (Público)
+**¡Las clientas pueden cambiar fecha/hora usando solo su celular!**
+
+```http
+PUT /api/citas/publica/:id
+Content-Type: application/json
+
+{
+  "celular": 3009876543,
+  "fecha": "2025-12-31",
+  "hora": "02:00 PM"
+}
+```
+
+**Respuesta exitosa:**
+```json
+{
+  "mensaje": "Cita reprogramada con éxito",
+  "cita": {
+    "_id": "64f8a8b3c4b5d6e7f8g9h0i2",
+    "celular": 3009876543,
+    "fecha": "2025-12-31",
+    "hora": "02:00 PM",
+    "estado": "Pendiente"
+  }
+}
+```
+
+**Respuesta de conflicto:**
+```json
+{
+  "mensaje": "No se puede reprogramar la cita. Este horario se superpone con otra cita existente (01:00 PM a 03:00 PM). Por favor seleccione otro horario.",
+  "conflicto": {
+    "horaInicio": "01:00 PM",
+    "horaFin": "03:00 PM",
+    "duracion": 120
+  }
+}
+```
+
+---
+
+### 🔄 Actualizar Estado de Cita (Público)
+**¡Las clientas pueden cambiar el estado usando solo su celular!**
+
+```http
+PUT /api/citas/publica/:id
+Content-Type: application/json
+
+{
+  "celular": 3009876543,
+  "estado": "Cancelada por clienta"
+}
+```
+
+---
+
+### 👑 Actualizar Cita (Solo Admin)
+**¡Los administradores pueden cambiar cualquier cita!**
+
+```http
+PUT /api/citas/admin/:id
+Authorization: Bearer <admin_token>
+Content-Type: application/json
+
+{
+  "estado": "Aprobada"
+}
+```
+
+---
+
+### ✏️ Actualizar Estado de Cita (DEPRECATED)
 ```http
 PUT /api/citas/:id
 Authorization: Bearer <token>
@@ -453,6 +536,12 @@ npm run test:verbose
 - ✅ Solo estados predefinidos
 - ✅ Validación estricta
 - ✅ Historial de cambios
+
+### Duración y Precio
+- ✅ **duracionTotal**: Número positivo en minutos
+- ✅ **precioTotal**: Número positivo en pesos colombianos
+- ✅ Validación automática de solapamiento por duración
+- ✅ Ejemplos válidos: `duracionTotal: 120`, `precioTotal: 45000`
 
 ---
 

@@ -27,6 +27,8 @@ describe('Citas API', () => {
       fecha: '2025-12-31',
       hora: '10:00 AM',
       servicio: [servicio._id],
+      duracionTotal: 60,
+      precioTotal: 25000,
       estado: 'Pendiente'
     };
 
@@ -48,6 +50,8 @@ describe('Citas API', () => {
       fecha: '2025-12-31',
       hora: '10:00 AM',
       servicio: [servicio._id],
+      duracionTotal: 60,
+      precioTotal: 25000,
       estado: 'Pendiente'
     };
 
@@ -116,15 +120,14 @@ describe('Citas API', () => {
     expect(res.body).toHaveProperty('mensaje');
   });
 
-  // Test para actualizar estado de cita
-  test('PUT /api/citas/:id - Actualizar estado de cita', async () => {
+  // Test para actualizar estado de cita como admin
+  test('PUT /api/citas/admin/:id - Actualizar estado de cita como admin', async () => {
     const datosActualizacion = {
-      estado: 'Aprobada',
-      celular: 3009876543 // Para verificar permisos
+      estado: 'Aprobada'
     };
 
     const res = await request(app)
-      .put(`/api/citas/${citaId}`)
+      .put(`/api/citas/admin/${citaId}`)
       .set('Authorization', `Bearer ${adminToken}`)
       .send(datosActualizacion);
 
@@ -133,16 +136,31 @@ describe('Citas API', () => {
     expect(res.body.cita.estado).toBe('Aprobada');
   });
 
+  // Test para actualizar estado de cita como cliente (ruta pública)
+  test('PUT /api/citas/publica/:id - Actualizar estado de cita como cliente', async () => {
+    const datosActualizacion = {
+      estado: 'Cancelada por clienta',
+      celular: 3009876543 // Para verificar permisos
+    };
+
+    const res = await request(app)
+      .put(`/api/citas/publica/${citaId}`)
+      .send(datosActualizacion);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toHaveProperty('mensaje', 'Cita actualizada con éxito');
+    expect(res.body.cita.estado).toBe('Cancelada por clienta');
+  });
+
   // Test para actualizar cita con ID inválido
-  test('PUT /api/citas/:id - ID de cita inválido', async () => {
+  test('PUT /api/citas/publica/:id - ID de cita inválido', async () => {
     const datosActualizacion = {
       estado: 'Aprobada',
       celular: 3009876543
     };
 
     const res = await request(app)
-      .put('/api/citas/invalidid')
-      .set('Authorization', `Bearer ${adminToken}`)
+      .put('/api/citas/publica/invalidid')
       .send(datosActualizacion);
 
     expect(res.statusCode).toBe(400);
@@ -168,6 +186,8 @@ describe('Citas API', () => {
       fecha: '2025-12-30',
       hora: '11:00 AM',
       servicio: [servicio._id],
+      duracionTotal: 60,
+      precioTotal: 25000,
       estado: 'Pendiente'
     };
 
@@ -198,6 +218,8 @@ describe('Citas API', () => {
       fecha: '2025-12-29',
       hora: '10:00 AM',
       servicio: [servicio._id],
+      duracionTotal: 60,
+      precioTotal: 25000,
       estado: 'Pendiente'
     };
     

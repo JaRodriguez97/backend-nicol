@@ -12,6 +12,8 @@ const CitaSchema = new mongoose.Schema(
         required: true,
       },
     ],
+    duracionTotal: { type: Number, required: true },
+    precioTotal: { type: Number, required: true },
     estado: {
       type: String,
       default: "Pendiente",

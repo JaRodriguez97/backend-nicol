@@ -19,7 +19,7 @@ const mockCitas = [
   {
     _id: '123',
     celular: 3243973949,
-    fecha: '04/01/2025',
+fecha: '2025-04-01',
     hora: '09:00 AM',
     servicio: [
       {
@@ -52,7 +52,7 @@ app.post('/api/citas', (req, res) => {
   }
   
   // Verificar si ya existe una cita
-  if (fecha === '04/01/2025' && hora === '09:00 AM') {
+  if (fecha === '2025-04-01' && hora === '09:00 AM') {
     return res.status(400).json({ 
       mensaje: 'Alguien más ya tiene una cita en esa hora y fecha'
     });
@@ -104,7 +104,7 @@ describe('API de Citas', () => {
     test('POST /api/citas - Debe crear una cita correctamente', async () => {
       const nuevaCita = {
         celular: 3243973949,
-        fecha: '05/01/2025',
+fecha: '2025-05-01',
         hora: '10:00 AM',
         servicio: ['abc123'],
       };
@@ -135,7 +135,7 @@ describe('API de Citas', () => {
     test('POST /api/citas - Debe rechazar cita en horario ocupado', async () => {
       const citaOcupada = {
         celular: 3243973949,
-        fecha: '04/01/2025',
+        fecha: '2025-04-01',
         hora: '09:00 AM',
         servicio: ['abc123'],
       };
